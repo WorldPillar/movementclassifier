@@ -72,9 +72,13 @@ if __name__ == '__main__':
         print("Something went wrong")
         exit()
 
-    # dataframe = crop(frames)
+    dataframe = crop(frames)
 
     name = 'ilia'
-    # dataframe.to_csv(f"cvs_data/{name}.csv")
+
+    csv_path = 'cvs_data'
+    if not os.path.exists(csv_path):
+        os.makedirs(csv_path)
+    dataframe.to_csv(f"{csv_path}/{name}.csv")
 
     video_save(name, frames, width, height)
