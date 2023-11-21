@@ -5,7 +5,8 @@ from threading import Thread
 from src import *
 import joblib
 
-model = joblib.load("models/")
+model = joblib.load("models/new_model.joblib")
+names = ['Эдик', 'Илья', 'Оля']
 
 
 def gait_recognition(frame_collection, w, h):
@@ -19,10 +20,12 @@ def gait_recognition(frame_collection, w, h):
     ar = np.array(output_array)
     df = pd.DataFrame(ar)
     predict = model.predict(df)
-    print("name: " + str(predict) + "%")
+    _, counts = np.unique(predict, return_counts=True)
+    predict_class = dict(zip(names, counts))
 
+    for k, v in predict_class.items():
+        print(f'{k}: {(v / len(predict)) * 100}%')
 
-# todo: создать список имён файлов аналагично csv для вывода имён при предикте
 
 def start_capture(w, h):
     cap = cv2.VideoCapture(0)

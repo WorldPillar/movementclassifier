@@ -76,7 +76,7 @@ if __name__ == '__main__':
 
     name = 'ilia'
 
-    csv_path = 'cvs_data'
+    csv_path = 'csv_data'
     if not os.path.exists(csv_path):
         os.makedirs(csv_path)
     dataframe.to_csv(f"{csv_path}/{name}.csv")

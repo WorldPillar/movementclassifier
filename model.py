@@ -15,13 +15,24 @@ for path in os.listdir(dir_path):
     if os.path.isfile(os.path.join(dir_path, path)):
         csv.append(dir_path + '/' + path)
 
-for i in range(len(csv)):
-    df = pd.read_csv(csv[i])
-    df.drop(columns=df.columns[0], axis=1, inplace=True)
+csv_position = 0
+
+while csv_position < len(csv):
+    df_1 = pd.read_csv(csv[csv_position])
+    df_1.drop(columns=df_1.columns[0], axis=1, inplace=True)
+
+    csv_position += 1
+
+    df_2 = pd.read_csv(csv[csv_position])
+    df_2.drop(columns=df_2.columns[0], axis=1, inplace=True)
+
+    df = pd.concat([df_1, df_2])
     frames.append(df)
 
-    y_class = np.ones(df.shape[0]) * i
+    y_class = np.ones(df.shape[0]) * ((csv_position - 1) // 2)
     classes.append(y_class)
+
+    csv_position += 1
 
 X = pd.concat(frames)
 y = np.hstack(tuple(classes))
