@@ -2,16 +2,14 @@ import json
 
 
 class Config:
-    __default = {'csv_path': 'csv_data', 'model_path': 'models', 'model_name': 'new_model.joblib', 'names': {}}
+    __default = {'csv_path': 'csv_data', 'model_path': 'models',
+                 'model_name': 'new_model.joblib',
+                 'tensor_model_path': 'src/movenet_singlepose_lightning_4', 'names': {}}
     csv_path = 'csv_data'
     model_path = 'models'
     model_name = 'new_model.joblib'
+    tensor_model_path = 'src/movenet_singlepose_lightning_4'
     names = {}
-
-    def __init__(self, data: dict):
-        self.csv_path = data.get('csv_path', self.__default['csv_path'])
-        self.model_path = data.get('model_path', self.__default['model_path'])
-        self.model_name = data.get('model_name', self.__default['model_name'])
 
     @staticmethod
     def set_names(names):
@@ -25,7 +23,8 @@ class Config:
     @staticmethod
     def __save_config():
         json_data = {'csv_path': Config.csv_path, 'model_path': Config.model_path,
-                     'model_name': Config.model_name, 'names': Config.names}
+                     'model_name': Config.model_name,
+                     'tensor_model_path': Config.tensor_model_path, 'names': Config.names}
         with open('config.json', 'w') as f:
             json.dump(json_data, f)
         pass
@@ -44,5 +43,6 @@ class Config:
             Config.model_path = data.get('model_path', Config.__default['model_path'])
             Config.model_name = data.get('model_name', Config.__default['model_name'])
             Config.names = data.get('names', Config.__default['names'])
+            Config.tensor_model_path = data.get('tensor_model_path', Config.__default['tensor_model_path'])
 
         Config.__save_config()
