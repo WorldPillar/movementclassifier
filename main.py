@@ -67,7 +67,6 @@ class App:
             self.recognize_frames.append(frame)
         elif not self.saving and not self.recognizing and len(self.recognize_frames) == 150:
             print('start recognizing')
-            messages.append(time.strftime('%d.%m.%Y %H:%M:%S', time.localtime(time.time())))
             thread_recognition = Thread(target=self.recognize)
             thread_recognition.start()
             self.check_thread_recognize(thread_recognition)
@@ -101,8 +100,10 @@ class App:
         result = Recognition.gait_recognition(self.recognize_frames)
         if result is None:
             print('Модели ещё нет')
+            self.recognize_frames = []
             return
 
+        messages.append(time.strftime('%d.%m.%Y %H:%M:%S', time.localtime(time.time())))
         for res in result:
             messages.append(res)
 

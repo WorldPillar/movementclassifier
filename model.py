@@ -6,6 +6,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from config import Config
 
+# TODO: Сделать каскад моделей "Один против всех"
+
 
 class Model:
 
