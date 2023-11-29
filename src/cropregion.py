@@ -5,10 +5,11 @@ from matplotlib.collections import LineCollection
 import matplotlib.patches as patches
 import numpy as np
 import cv2
+from config import Config
 
 
 MIN_CROP_KEYPOINT_SCORE = 0.2
-module = hub.load("src/movenet_singlepose_lightning_4")
+module = hub.load(f"{Config.tensor_model_path}")
 model = module.signatures['serving_default']
 input_size = 192
 
