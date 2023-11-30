@@ -6,58 +6,61 @@ import joblib
 from config import Config
 
 
-def load_model():
+def load_models():
+    models = []
     try:
-        model = joblib.load(f"{Config.get_model()}")
+        for path in os.listdir(Config.model_path):
+            if os.path.isfile(os.path.join(Config.model_path, path)):
+                models.append(joblib.load(f"{Config.model_path}/{path}"))
     except FileNotFoundError:
-        model = None
-    return model
+        models = None
+    return models
 
 
 class Recognition:
-    __csv_path = 'csv_data'
-    __model = load_model()
-
-    @staticmethod
-    def __get_names():
-        names = []
-        for path in os.listdir(Recognition.__csv_path):
-            if os.path.isfile(os.path.join(Recognition.__csv_path, path)):
-                names.append(path.split('.')[0])
-
-        names = dict(zip(range(len(names)), names))
-
-        return names
+    __models = load_models()
 
     @staticmethod
     def gait_recognition(frame_collection):
-        if Recognition.__model is None:
+        if Recognition.__models is None:
             return None
 
-        names = Recognition.__get_names()
-
-        crop_region = init_crop_region(720, 1280)
-        output_array = []
-        for frame_idx in range(len(frame_collection)):
-            keypoints_with_scores = run_inference(frame_collection[frame_idx], crop_region,
-                                                  crop_size=[input_size, input_size])
-            output_array.append(keypoints_with_scores.reshape(51))
-
-        ar = np.array(output_array)
-        df = pd.DataFrame(ar)
-        predict = Recognition.__model.predict(df)
-        unique, counts = np.unique(predict, return_counts=True)
-        predict_class = dict(zip(unique, counts))
-        print(predict_class)
-
-        total = sum(counts)
+        name_position = 0
         result = []
-        for k, v in predict_class.items():
-            text = f"{Config.names[str(int(k))]}: {round(v / total, 4) * 100}%"
-            result.append(text)
+        for model in Recognition.__models:
+            crop_region = init_crop_region(720, 1280)
+            output_array = []
+            for frame_idx in range(len(frame_collection)):
+                keypoints_with_scores = run_inference(frame_collection[frame_idx], crop_region,
+                                                      crop_size=[input_size, input_size])
+                output_array.append(keypoints_with_scores.reshape(51))
+
+            ar = np.array(output_array)
+            df = pd.DataFrame(ar)
+            predict = model.predict(df)
+
+            unique, counts = np.unique(predict, return_counts=True)
+            unique = [int(i) for i in unique]
+            if 1 not in unique:
+                name_position += 1
+                continue
+
+            predict_class = dict(zip(unique, counts))
+            print(predict_class)
+
+            total = sum(counts)
+            chance = predict_class[1] / total
+            if chance > 0.25:
+                text = f"{Config.names[str(int(name_position))]}: {round(chance, 4) * 100}%"
+                result.append(text)
+
+            name_position += 1
+        
+        if not result:
+            result.append('Никто не обнаружен')
 
         return result
 
     @staticmethod
     def update_model():
-        Recognition.__model = load_model()
+        Recognition.__models = load_models()
