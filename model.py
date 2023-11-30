@@ -10,6 +10,29 @@ from config import Config
 class Model:
 
     @staticmethod
+    def delete_user(name: str) -> bool:
+        presence: bool = False
+        for path in os.listdir(Config.csv_path):
+            if os.path.isfile(os.path.join(Config.csv_path, path)):
+                if path.split('.')[0] == name:
+                    presence = True
+                    os.remove(os.path.join(Config.csv_path, path))
+        for path in os.listdir(Config.model_path):
+            if os.path.isfile(os.path.join(Config.model_path, path)):
+                if path.split('.')[0] == name:
+                    presence = True
+                    os.remove(os.path.join(Config.model_path, path))
+        if name in Config.names.values():
+            presence = True
+
+        if presence:
+            Model.train_model()
+        else:
+            return False
+
+        return True
+
+    @staticmethod
     def __read_csv() -> (list, list):
         csv = []
         names = {}
@@ -22,25 +45,6 @@ class Model:
 
         Config.set_names(names)
         return csv
-
-    @staticmethod
-    def __prepare_x_y_old(csv: list) -> tuple:
-        frames = []
-        classes = []
-
-        for pos in range(len(csv)):
-            df = pd.read_csv(csv[pos])
-            df.drop(columns=df.columns[0], axis=1, inplace=True)
-
-            frames.append(df)
-
-            y_class = np.ones(df.shape[0]) * pos
-            classes.append(y_class)
-
-        x = pd.concat(frames).values
-        y = np.hstack(tuple(classes))
-
-        return x, y
 
     @staticmethod
     def __prepare_x_y(csv: list):
@@ -95,6 +99,3 @@ class Model:
                 os.makedirs(Config.model_path)
             joblib.dump(clf, f"{Config.model_path}/{Config.names[str(name_pos)]}.joblib")
             name_pos += 1
-
-
-# Model.train_model()

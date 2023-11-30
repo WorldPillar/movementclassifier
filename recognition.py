@@ -50,7 +50,7 @@ class Recognition:
 
             total = sum(counts)
             chance = predict_class[1] / total
-            if chance > 0.25:
+            if chance > 0.4:
                 text = f"{Config.names[str(int(name_position))]}: {round(chance, 4) * 100}%"
                 result.append(text)
 
